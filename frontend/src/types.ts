@@ -72,6 +72,6 @@ export const EMOTION_LABELS: Record<string, string> = {
 }
 
 export const EMOTION_COLORS: Record<string, string> = {
-  angry: '#fb7185', disgusted: '#a3e635', fearful: '#c084fc', happy: '#fbbf24',
-  neutral: '#5eead4', other: '#94a3b8', sad: '#60a5fa', surprised: '#fb923c', unknown: '#64748b',
+  angry: '#b46a61', disgusted: '#899060', fearful: '#9985aa', happy: '#b99b57',
+  neutral: '#758b78', other: '#969589', sad: '#788da4', surprised: '#b88a65', unknown: '#7e8080',
 }

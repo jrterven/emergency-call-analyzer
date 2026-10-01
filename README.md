@@ -1,6 +1,6 @@
-# Línea Clara
+# Emergency Analyzer
 
-Prototipo de investigación para observar conversaciones simuladas de recepción de emergencias: audio, transcripción, emociones y resumen. Interfaz en español de México. Las puntuaciones emocionales apoyan la revisión humana; no clasifican la veracidad de una llamada.
+Prototipo de investigación para observar conversaciones simuladas de recepción de emergencias: audio, transcripción, emociones y resumen. Interfaz en español de México, con colores claros y neutros. Las puntuaciones emocionales apoyan la revisión humana; no clasifican la veracidad de una llamada.
 
 ## Ejecutar en esta Mac
 
@@ -21,6 +21,10 @@ Para descargar los pesos antes de la primera sesión:
 ```
 
 Los pesos de Whisper `small` y emotion2vec+ ocupan aproximadamente 1.6 GB, además de las dependencias. Se guardan en `.model-cache/` y se reutilizan sin conexión. El primer análisis puede tardar más por las descargas y la inicialización.
+
+## Interfaz
+
+La consola reúne llamadas, archivos e historial. La transcripción conserva el texto recibido aunque lleguen actualizaciones de audio o respuestas anteriores del servidor. Durante una llamada sigue el texto nuevo dentro de su propio panel, sin desplazar la página; si desplazas ese panel hacia arriba, deja de seguir automáticamente hasta que vuelvas al final.
 
 ## Dos modos
 
@@ -64,6 +68,16 @@ npm --prefix frontend run build
 ```
 
 Las pruebas usan directorios temporales y verifican canales, frecuencias de muestreo, silencio, persistencia, cierres parciales y límites. No requieren llamadas facturadas ni descargar modelos. Las pruebas con modelos reales se realizan por separado usando audio sintético en español.
+
+Con la app ejecutándose, puedes comprobar la estabilidad de la transcripción y el desplazamiento en Chrome:
+
+```bash
+npx --package @playwright/cli playwright-cli -s=ui-check open http://127.0.0.1:5173/
+npx --package @playwright/cli playwright-cli -s=ui-check run-code --filename=tests/ui_regression.js
+npx --package @playwright/cli playwright-cli -s=ui-check close
+```
+
+Esta prueba simula todas las respuestas de la API y verifica actualizaciones atrasadas, fragmentos repetidos y lectura manual. No usa el micrófono, OpenAI ni las sesiones guardadas.
 
 La calidad en llamadas reales, acentos, ruido y voces superpuestas requiere evaluación con anotaciones humanas. Los resultados de este prototipo son estimaciones para investigación.
 

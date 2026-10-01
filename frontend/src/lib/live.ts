@@ -1,4 +1,5 @@
 import { apiRequest, getSession } from './api'
+import { mergeSession } from './sessionState'
 import type { ResearchSession, StreamEvent, TranscriptFragment } from '../types'
 
 export interface LiveCallbacks {
@@ -93,8 +94,8 @@ export class LiveCall {
         try {
           const event = JSON.parse(data) as StreamEvent
           if (event.type === 'session') {
-            this.session = event.session
-            this.callbacks.onSession(event.session)
+            this.session = mergeSession(this.session, event.session)
+            this.callbacks.onSession(this.session)
           } else if (event.type === 'emotion' && this.session) {
             const emotions = this.session.emotions.filter((window) => window.id !== event.window.id)
             this.session = { ...this.session, emotions: [...emotions, event.window].sort((a, b) => a.start_ms - b.start_ms || a.end_ms - b.end_ms) }
@@ -175,7 +176,8 @@ export class LiveCall {
       this.maxDurationTimer = window.setTimeout(() => { this.callbacks.onStatus('Límite de 10 minutos alcanzado'); void this.stop() }, 600_000)
       const result = await getSession(this.session.id)
       this.assertStarting()
-      return result
+      this.session = mergeSession(this.session, result)
+      return this.session
     } catch (error) {
       const message = error instanceof Error ? error.message : 'No fue posible iniciar la llamada.'
       await this.stop(false)
@@ -264,6 +266,10 @@ export class LiveCall {
         text: typeof event.delta === 'string' ? event.delta : '',
         start_ms: typeof event.start_ms === 'number' ? event.start_ms : null,
         end_ms: typeof event.end_ms === 'number' ? event.end_ms : null,
+      }
+      if (fragment.text && this.session && !this.session.transcript.some(item => item.id === fragment.id)) {
+        this.session = { ...this.session, transcript: [...this.session.transcript, fragment] }
+        this.callbacks.onSession(this.session)
       }
       this.sendLocal({ type: 'transcript', fragment })
     } else if (event.type === 'session.closed') {
@@ -360,8 +366,8 @@ export class LiveCall {
         const result = await apiRequest<ResearchSession>(`/api/sessions/${this.session.id}/finish`, {
           method: 'POST', body: JSON.stringify({ complete: complete && closed, duration_ms: duration, usage: this.usage }),
         })
-        this.session = result
-        this.callbacks.onSession(result)
+        this.session = mergeSession(this.session, result)
+        this.callbacks.onSession(this.session)
       } catch {
         this.callbacks.onError('No se pudo finalizar la sesión. El historial conservará los resultados recibidos.')
       }

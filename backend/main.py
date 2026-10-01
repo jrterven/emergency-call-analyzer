@@ -381,7 +381,7 @@ def create_app(config: Settings = settings) -> FastAPI:
         await asyncio.gather(*runtime.jobs, return_exceptions=True)
         runtime.executor.shutdown(wait=False, cancel_futures=True)
 
-    app = FastAPI(title="Emergency Voice Research", lifespan=lifespan)
+    app = FastAPI(title="Emergency Analyzer", lifespan=lifespan)
     app.state.runtime = runtime
     app.add_middleware(CORSMiddleware, allow_origins=list(config.allowed_origins), allow_methods=["GET", "POST", "DELETE"], allow_headers=["Content-Type"])
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=["localhost", "127.0.0.1", "[::1]", "testserver"])
