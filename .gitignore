@@ -1,0 +1,15 @@
+.env
+.env.*
+!.env.example
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+data/
+.model-cache/
+frontend/node_modules/
+frontend/dist/
+output/
+.DS_Store
+.playwright-cli/
+frontend/*.tsbuildinfo

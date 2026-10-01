@@ -1,0 +1,7 @@
+-r requirements.txt
+torch>=2.5,<3
+torchaudio>=2.5,<3
+openai-whisper>=20240930
+funasr>=1.2,<2
+huggingface-hub>=0.26,<1
+transformers>=4.44,<5
