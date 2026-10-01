@@ -116,7 +116,23 @@ Una variable `OPENAI_API_KEY` ya definida en el entorno tiene prioridad sobre `.
 
 ## Ejecutar la app
 
-Abre **dos terminales**, ambas en la raíz del repositorio.
+### Un solo comando — Bash
+
+En Linux, macOS o una instalación Linux dentro de WSL, ejecuta desde la raíz:
+
+```bash
+bash start.sh
+```
+
+El script prepara el entorno y las dependencias del proyecto si faltan, crea `.env` si no existe, activa `.venv` e inicia el backend y el frontend. Python 3.11, Node.js/npm y FFmpeg deben estar instalados previamente según la sección de requisitos. La primera preparación necesita Internet; los siguientes arranques reutilizan el entorno instalado. Los pesos de los modelos se descargan al prepararlos o usarlos por primera vez.
+
+Espera el mensaje **Emergency Analyzer listo** y abre [http://127.0.0.1:5173](http://127.0.0.1:5173). `Ctrl+C` detiene los dos servicios y sus procesos hijos. Si uno falla, el script cierra el otro; si un puerto está ocupado, muestra el problema antes de iniciar. La clave y el historial existentes se conservan.
+
+También puedes invocar el script desde otro directorio usando su ruta completa. Si necesitas otro ejecutable de Python 3.11 durante la preparación inicial, usa `PYTHON_BIN=python3 bash start.sh` tras verificar su versión. En Windows nativo, utiliza el arranque manual de PowerShell siguiente.
+
+### Arranque manual
+
+Como alternativa, abre **dos terminales**, ambas en la raíz del repositorio.
 
 ### Windows — PowerShell
 
@@ -146,7 +162,7 @@ Terminal 2, frontend:
 npm --prefix frontend run dev -- --host 127.0.0.1 --port 5173 --strictPort
 ```
 
-Como alternativa en Linux/macOS, `./scripts/dev.sh` inicia ambos servidores desde una terminal.
+Si el entorno ya está preparado, `bash scripts/dev.sh` también activa `.venv` e inicia ambos servidores desde una terminal.
 
 Abre [http://127.0.0.1:5173](http://127.0.0.1:5173) en Chrome y permite el micrófono para una llamada. La pantalla de configuración muestra si la API key está configurada, si FFmpeg está disponible y si los modelos están cargados en el backend. Con los comandos manuales, detén cada servidor con `Ctrl+C` en su terminal; con `dev.sh`, `Ctrl+C` detiene ambos.
 

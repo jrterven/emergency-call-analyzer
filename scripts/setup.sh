@@ -10,6 +10,6 @@ command -v npm >/dev/null || { echo "Instala Node.js y npm. Consulta las version
 "$PYTHON_BIN" -m venv .venv
 .venv/bin/python -m pip install --index-url https://pypi.org/simple --cache-dir .model-cache/pip -r requirements-ml.txt
 npm --prefix frontend install
-if [[ ! -f .env ]]; then cp .env.example .env; fi
+if [[ ! -f .env ]]; then (umask 077; cp .env.example .env); fi
 echo "Listo. Para llamadas y resúmenes configura OPENAI_API_KEY en .env."
-echo "Inicia la app con ./scripts/dev.sh"
+echo "Inicia la app con bash start.sh"
