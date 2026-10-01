@@ -2,6 +2,28 @@
 
 Prototipo de investigación para observar conversaciones simuladas de recepción de emergencias: audio, transcripción, emociones y resumen. Interfaz en español de México, con colores claros y neutros. Las puntuaciones emocionales apoyan la revisión humana; no clasifican la veracidad de una llamada.
 
+## Capturas de pantalla
+
+Capturas de la interfaz con datos simulados. Las conversaciones, puntuaciones emocionales y resúmenes son ejemplos ilustrativos.
+
+### Llamada simulada
+
+Consola para iniciar una llamada y observar la transcripción y las señales emocionales.
+
+![Consola de llamada simulada de Emergency Analyzer](docs/images/live-call.png)
+
+### Preparar un archivo de audio
+
+Vista previa de una grabación estéreo y selección del canal del llamante antes del análisis local.
+
+![Carga de audio y selección del canal del llamante](docs/images/audio-upload.png)
+
+### Resultados del análisis
+
+Ejemplo de una sesión guardada con transcripción, evolución de las puntuaciones emocionales y resumen del incidente.
+
+![Resultados simulados con transcripción, emociones y resumen](docs/images/analysis-results.png)
+
 ## Requisitos
 
 La instalación se documenta para **Windows, Linux y macOS**. La ejecución y las pruebas realizadas hasta ahora corresponden a macOS ARM64 con Python 3.11; Windows y Linux tienen instrucciones de instalación, pero aún no cuentan con validación completa de esta app.
