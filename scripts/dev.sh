@@ -30,6 +30,7 @@ PY
 
 API_PID=""
 UI_PID=""
+RUN_TOKEN=""
 cleanup() {
   trap '' INT TERM
   echo "Deteniendo backend y frontend…"
@@ -44,6 +45,9 @@ cleanup() {
       wait "$service_pid" 2>/dev/null || true
     fi
   done
+  if [[ -n "$RUN_TOKEN" ]]; then
+    python scripts/service_control.py clear "$RUN_TOKEN" || true
+  fi
 }
 trap cleanup EXIT
 trap 'exit 130' INT
@@ -51,10 +55,11 @@ trap 'exit 143' TERM
 
 # Compatible with Bash 3.2 (macOS); wait -n is not required.
 set -m
-python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000 --reload --reload-dir backend &
+python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000 --reload --reload-dir backend </dev/null &
 API_PID=$!
-npm --prefix frontend run dev -- --host 127.0.0.1 --port 5173 --strictPort &
+npm --prefix frontend run dev -- --host 127.0.0.1 --port 5173 --strictPort </dev/null &
 UI_PID=$!
+RUN_TOKEN="$(python scripts/service_control.py record "$$" "$API_PID" "$UI_PID")"
 
 python - <<'PY'
 import sys

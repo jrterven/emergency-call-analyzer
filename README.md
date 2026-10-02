@@ -130,6 +130,20 @@ Espera el mensaje **Emergency Analyzer listo** y abre [http://127.0.0.1:5173](ht
 
 También puedes invocar el script desde otro directorio usando su ruta completa. Si necesitas otro ejecutable de Python 3.11 durante la preparación inicial, usa `PYTHON_BIN=python3 bash start.sh` tras verificar su versión. En Windows nativo, utiliza el arranque manual de PowerShell siguiente.
 
+### Cerrar servicios que quedaron abiertos — Bash
+
+En Linux, macOS o WSL, ejecuta desde la raíz, incluso desde otra terminal:
+
+```bash
+bash stop.sh
+```
+
+El script cierra el backend, el frontend y sus procesos hijos de este repositorio, también si la terminal de arranque se cerró inesperadamente. Reconoce los servicios iniciados con `start.sh`/`dev.sh` y los arranques manuales de esta guía. Espera hasta 10 segundos para que terminen; si no responden, fuerza su cierre. Puedes ejecutarlo varias veces: si la app ya está cerrada, lo indica y termina correctamente.
+
+`start.sh` registra los procesos en `.run/services.json`, excluido de Git. El cierre comprueba la identidad y el directorio de los procesos para evitar terminar otros programas de Python o Node. Conserva `.env`, los modelos y el historial. Para guardar la grabación completa de una llamada activa, termina primero la llamada en la interfaz.
+
+Puedes ejecutar `bash /ruta/al/repositorio/stop.sh` desde otro directorio. El script usa el Python de `.venv` si existe; en caso contrario, `python3` o el ejecutable indicado con `PYTHON_BIN`. En Windows nativo con PowerShell, detén cada servicio con `Ctrl+C` en su terminal; los scripts Bash se usan dentro de WSL.
+
 ### Arranque manual
 
 Como alternativa, abre **dos terminales**, ambas en la raíz del repositorio.
@@ -196,6 +210,8 @@ La consola reúne llamadas, archivos e historial. La transcripción conserva el 
 
 - **Llamada en vivo:** WebRTC conecta el micrófono con `gpt-live-1`. GPT-Live proporciona las transcripciones de ambos participantes. Un AudioWorklet independiente envía únicamente el micrófono al análisis emocional local. La grabación estéreo conserva al llamante a la izquierda y al asistente a la derecha.
 - **Archivos:** WAV, MP3, M4A o WebM, hasta 25 MB y 10 minutos. Primero escucha y selecciona el canal del llamante; FFmpeg extrae ese canal antes de convertirlo a mono de 16 kHz. La misma señal, con silencios intactos, alimenta emotion2vec+ y Whisper local. Las conversaciones mezcladas en un solo canal requieren preparar previamente una voz aislada.
+
+La llamada comienza con «Emergencias, ¿dónde ocurre la situación?». El prompt pide voz calmada, frases breves y pausas para escuchar, sin una presentación técnica en la conversación habitual. La interfaz identifica la llamada como simulada; si el llamante pregunta por la identidad, el asistente responde con honestidad. La aplicación no despacha servicios de emergencia.
 
 Los trabajos locales se ejecutan de uno en uno, fuera del servidor HTTP. En archivos se calculan las emociones antes de transcribir. En vivo se usan ventanas de 4 segundos cada 2 segundos; una ventana necesita al menos un segundo de voz. Si el modelo se retrasa, se registra la ventana omitida y se prioriza la reciente. El audio completo del llamante se conserva independientemente de esas omisiones.
 
@@ -266,6 +282,8 @@ npm --prefix frontend run build
 ```
 
 Las pruebas usan directorios temporales y verifican canales, frecuencias de muestreo, silencio, persistencia, cierres parciales y límites. No requieren llamadas facturadas ni descargar modelos. Para ejecutar todas las pruebas de audio, instala FFmpeg con `ffprobe` y soporte para `libopus`. Las pruebas con modelos reales se realizan por separado usando audio sintético en español.
+
+Las pruebas del control de servicios comprueban procesos de otros proyectos, PID reutilizados, procesos huérfanos y la privacidad del registro local. El arranque y el cierre con `stop.sh` se comprobaron en macOS, incluyendo la caída abrupta del launcher y un proceso que ignora la señal de cierre. Linux y WSL requieren validar esos flujos en su entorno.
 
 Con la app ejecutándose, puedes comprobar la estabilidad de la transcripción y el desplazamiento en Chrome:
 

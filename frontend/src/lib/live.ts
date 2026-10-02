@@ -255,7 +255,7 @@ export class LiveCall {
       })
       this.callbacks.onStatus('Llamada en curso')
       this.events?.send(JSON.stringify({ type: 'session.instructions.append', event_id: crypto.randomUUID(), delegation_id: null,
-        content: 'Saluda ahora en español: Soy un asistente virtual en una simulación de atención de emergencias. ¿Dónde ocurre la situación? Luego haz una pausa para escuchar.',
+        content: 'Saluda ahora en español de México, con voz calmada y natural. Di: «Emergencias, ¿dónde ocurre la situación?». Luego haz una pausa para escuchar.',
       }))
       this.providerStarted?.()
       this.providerStarted = undefined
