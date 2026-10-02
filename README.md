@@ -206,6 +206,8 @@ El script prepara los modelos en un proceso separado. La interfaz seguirá mostr
 
 La consola reúne llamadas, archivos e historial. La transcripción conserva el texto recibido aunque lleguen actualizaciones de audio o respuestas anteriores del servidor. Durante una llamada sigue el texto nuevo dentro de su propio panel, sin desplazar la página; si desplazas ese panel hacia arriba, deja de seguir automáticamente hasta que vuelvas al final.
 
+«Escuchar grabación» aparece cuando el audio está guardado. En llamadas carga la grabación estéreo final, evitando reutilizar el audio incompleto de la captura en curso. Puedes escucharla mientras terminan las emociones o el resumen; si solo se recuperó el audio del llamante, el reproductor lo indica.
+
 ## Dos modos
 
 - **Llamada en vivo:** WebRTC conecta el micrófono con `gpt-live-1`. GPT-Live proporciona las transcripciones de ambos participantes. Un AudioWorklet independiente envía únicamente el micrófono al análisis emocional local. La grabación estéreo conserva al llamante a la izquierda y al asistente a la derecha.
@@ -290,10 +292,13 @@ Con la app ejecutándose, puedes comprobar la estabilidad de la transcripción y
 ```bash
 npx --package @playwright/cli playwright-cli -s=ui-check open http://127.0.0.1:5173/
 npx --package @playwright/cli playwright-cli -s=ui-check run-code --filename=tests/ui_regression.js
+npx --package @playwright/cli playwright-cli -s=ui-check run-code --filename=tests/playback_regression.js
 npx --package @playwright/cli playwright-cli -s=ui-check close
 ```
 
 Esta prueba simula todas las respuestas de la API y verifica actualizaciones atrasadas, fragmentos repetidos y lectura manual. No usa el micrófono, OpenAI ni las sesiones guardadas.
+
+La prueba de reproducción usa audio estéreo sintético para verificar que al terminar una llamada se carga la grabación completa, que contiene señal audible y que las actualizaciones de la sesión no reinician el reproductor.
 
 En PowerShell sustituye `npx` por `npx.cmd`. La prueba requiere Chrome instalado y la app en ejecución. No implica que se hayan validado las inferencias ni el audio en todos los sistemas operativos.
 

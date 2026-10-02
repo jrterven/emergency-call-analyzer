@@ -98,10 +98,25 @@ def test_live_tail_transcript_dedup_and_stereo_webm(client, tmp_path):
         socket.send_json({"type": "transcript", "fragment": fragment})
         for _ in range(10):
             socket.send_bytes(b"\0" * (44100 // 4 * 2))
+        receipt_id = str(uuid4())
+        socket.send_json({"type": "drain", "event_id": receipt_id})
+        for _ in range(20):
+            receipt = socket.receive_json()
+            if receipt["type"] == "drained":
+                assert receipt["event_id"] == receipt_id
+                break
+            assert receipt["type"] != "error", receipt
+        else:
+            pytest.fail("The stream did not acknowledge the queued audio")
+        initial_playback = client.get(f"/api/sessions/{session_id}/audio")
+        assert initial_playback.headers["content-type"] == "audio/wav"
+        assert initial_playback.headers["cache-control"] == "no-store"
         response = client.post(f"/api/sessions/{session_id}/recording", files={"file": ("llamada.webm", recording.read_bytes(), "audio/webm")})
         assert response.status_code == 200, response.text
         playback = client.get(f"/api/sessions/{session_id}/audio")
         assert playback.headers["content-type"] == "audio/webm"
+        assert playback.headers["cache-control"] == "no-store"
+        assert playback.content != initial_playback.content
         from backend.audio import decode_audio, probe_audio
         playable = tmp_path / "playback.webm"
         playable.write_bytes(playback.content)

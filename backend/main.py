@@ -601,7 +601,9 @@ def create_app(config: Settings = settings) -> FastAPI:
         for path in paths:
             if path.is_file():
                 media_type = {".wav": "audio/wav", ".webm": "audio/webm", ".mp3": "audio/mpeg", ".m4a": "audio/mp4"}.get(path.suffix)
-                return FileResponse(path, media_type=media_type)
+                # The caller WAV and the final stereo recording share this route.
+                # Never reuse a response obtained while capture was still active.
+                return FileResponse(path, media_type=media_type, headers={"Cache-Control": "no-store"})
         raise HTTPException(404, "No hay audio guardado para esta sesión.")
 
     @app.get("/api/sessions/{session_id}/export")
