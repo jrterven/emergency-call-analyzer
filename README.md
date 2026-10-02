@@ -1,6 +1,8 @@
 # Emergency Analyzer
 
-Prototipo de investigación para observar conversaciones simuladas de recepción de emergencias: audio, transcripción, emociones y resumen. Interfaz en español de México, con colores claros y neutros. Las puntuaciones emocionales apoyan la revisión humana; no clasifican la veracidad de una llamada.
+Aplicación web local para analizar llamadas de emergencia simuladas y archivos de audio mediante transcripción, reconocimiento de emociones y resúmenes estructurados. La interfaz está disponible en español de México.
+
+El proyecto está orientado a investigación y revisión humana. No verifica la veracidad de las llamadas ni despacha servicios de emergencia.
 
 ## Capturas de pantalla
 
@@ -26,7 +28,7 @@ Ejemplo de una sesión guardada con transcripción, evolución de las puntuacion
 
 ## Requisitos
 
-La instalación se documenta para **Windows, Linux y macOS**. La ejecución y las pruebas realizadas hasta ahora corresponden a macOS ARM64 con Python 3.11; Windows y Linux tienen instrucciones de instalación, pero aún no cuentan con validación completa de esta app.
+**Plataformas:** Windows, Linux y macOS. El entorno validado es macOS ARM64 con Python 3.11. La validación completa en Windows y Linux está pendiente.
 
 | Componente | Requisito |
 | --- | --- |
@@ -37,7 +39,7 @@ La instalación se documenta para **Windows, Linux y macOS**. La ejecución y la
 | Git | Para clonar el repositorio |
 | OpenAI | API key y acceso a los modelos configurados, para llamadas y resúmenes |
 
-Whisper y emotion2vec+ se ejecutan en **CPU**; no hace falta configurar CUDA. La instalación descarga dependencias y, al preparar o usar los modelos por primera vez, sus pesos. Reserva espacio para aproximadamente 1.6 GB de pesos, además del entorno Python, las dependencias y las grabaciones. El tiempo de procesamiento depende del equipo.
+Whisper y emotion2vec+ se ejecutan en **CPU**. La instalación descarga las dependencias; los pesos se descargan durante la preparación de los modelos o en su primer uso. Los pesos requieren aproximadamente 1.6 GB de almacenamiento, además del entorno Python, las dependencias y las grabaciones. El tiempo de procesamiento depende del equipo.
 
 ### Instalar las herramientas del sistema
 
@@ -60,7 +62,7 @@ brew install python@3.11 node git ffmpeg
 
 Descargas y documentación: [Python](https://www.python.org/downloads/), [Node.js](https://nodejs.org/en/download), [Git](https://git-scm.com/downloads) y [FFmpeg](https://ffmpeg.org/download.html). Los ejemplos de instalación de FFmpeg también están en la [documentación de Whisper](https://github.com/openai/whisper#setup).
 
-Comprueba las herramientas desde la terminal que utilizarás para ejecutar la app:
+Comprueba las herramientas desde la terminal que utilizarás para ejecutar la aplicación:
 
 ```text
 git --version
@@ -73,14 +75,14 @@ Para Python, usa `py -3.11 --version` en Windows o `python3.11 --version` en Lin
 
 ## Instalación
 
-Clona el repositorio por HTTPS, sin necesidad de configurar una clave SSH:
+Clona el repositorio:
 
 ```text
 git clone https://github.com/jrterven/emergency-call-analyzer.git
 cd emergency-call-analyzer
 ```
 
-Ejecuta los comandos siguientes desde la **raíz del repositorio**. Se usa el intérprete de `.venv` directamente, así que no hace falta activar el entorno. Sus rutas difieren según el sistema, como explica la [documentación de Python](https://docs.python.org/3.11/library/venv.html#how-venvs-work).
+Ejecuta los comandos desde la **raíz del repositorio**. Los ejemplos usan directamente el intérprete de `.venv`; no requieren activar el entorno. Las rutas del entorno virtual dependen del sistema operativo, como describe la [documentación de Python](https://docs.python.org/3.11/library/venv.html#how-venvs-work).
 
 ### Windows — PowerShell
 
@@ -106,7 +108,7 @@ if [ ! -f .env ]; then cp .env.example .env; fi
 
 En estos sistemas también puedes usar `./scripts/setup.sh`, que prepara el entorno, instala las dependencias y crea `.env` si aún no existe. Si Python 3.11 tiene otro nombre, ejecuta `PYTHON_BIN=python3 ./scripts/setup.sh`, verificando antes su versión. Los scripts `.sh` requieren Bash; en Windows utiliza los comandos de PowerShell anteriores.
 
-`requirements-ml.txt` incluye tanto el backend como los modelos locales. **No uses `requirements-lock.txt` como instalación multiplataforma:** es un registro del entorno verificado en macOS ARM64 y contiene dependencias específicas de esa plataforma.
+`requirements-ml.txt` contiene las dependencias del backend y de los modelos locales. `requirements-lock.txt` registra el entorno validado en macOS ARM64 e incluye dependencias específicas de esa plataforma; no es un archivo de instalación multiplataforma.
 
 ### Configurar OpenAI
 
@@ -114,9 +116,9 @@ Edita el archivo `.env` creado en la raíz y añade tu propia clave a `OPENAI_AP
 
 Una variable `OPENAI_API_KEY` ya definida en el entorno tiene prioridad sobre `.env`. La clave se utiliza exclusivamente en el backend. `.env` está excluido de Git; el repositorio incluye únicamente `.env.example`, con la clave vacía. Reinicia el backend después de cambiar la configuración.
 
-## Ejecutar la app
+## Ejecución
 
-### Un solo comando — Bash
+### Inicio con Bash
 
 En Linux, macOS o una instalación Linux dentro de WSL, ejecuta desde la raíz:
 
@@ -126,11 +128,11 @@ bash start.sh
 
 El script prepara el entorno y las dependencias del proyecto si faltan, crea `.env` si no existe, activa `.venv` e inicia el backend y el frontend. Python 3.11, Node.js/npm y FFmpeg deben estar instalados previamente según la sección de requisitos. La primera preparación necesita Internet; los siguientes arranques reutilizan el entorno instalado. Los pesos de los modelos se descargan al prepararlos o usarlos por primera vez.
 
-Espera el mensaje **Emergency Analyzer listo** y abre [http://127.0.0.1:5173](http://127.0.0.1:5173). `Ctrl+C` detiene los dos servicios y sus procesos hijos. Si uno falla, el script cierra el otro; si un puerto está ocupado, muestra el problema antes de iniciar. La clave y el historial existentes se conservan.
+Cuando aparezca **Emergency Analyzer listo**, abre [http://127.0.0.1:5173](http://127.0.0.1:5173). `Ctrl+C` detiene ambos servicios y sus procesos hijos. El script detiene el servicio restante si uno falla y comprueba la disponibilidad de los puertos antes del arranque. La configuración y el historial existentes se conservan.
 
 También puedes invocar el script desde otro directorio usando su ruta completa. Si necesitas otro ejecutable de Python 3.11 durante la preparación inicial, usa `PYTHON_BIN=python3 bash start.sh` tras verificar su versión. En Windows nativo, utiliza el arranque manual de PowerShell siguiente.
 
-### Cerrar servicios que quedaron abiertos — Bash
+### Detención con Bash
 
 En Linux, macOS o WSL, ejecuta desde la raíz, incluso desde otra terminal:
 
@@ -138,7 +140,7 @@ En Linux, macOS o WSL, ejecuta desde la raíz, incluso desde otra terminal:
 bash stop.sh
 ```
 
-El script cierra el backend, el frontend y sus procesos hijos de este repositorio, también si la terminal de arranque se cerró inesperadamente. Reconoce los servicios iniciados con `start.sh`/`dev.sh` y los arranques manuales de esta guía. Espera hasta 10 segundos para que terminen; si no responden, fuerza su cierre. Puedes ejecutarlo varias veces: si la app ya está cerrada, lo indica y termina correctamente.
+El script detiene el backend, el frontend y sus procesos hijos, incluidos los que permanezcan activos tras el cierre inesperado de la terminal. Reconoce los servicios iniciados con `start.sh`, `dev.sh` y los comandos de arranque manual de esta guía. El plazo de cierre es de 10 segundos; los procesos que no respondan se terminan de forma forzada. Si no hay servicios activos, el script finaliza correctamente.
 
 `start.sh` registra los procesos en `.run/services.json`, excluido de Git. El cierre comprueba la identidad y el directorio de los procesos para evitar terminar otros programas de Python o Node. Conserva `.env`, los modelos y el historial. Para guardar la grabación completa de una llamada activa, termina primero la llamada en la interfaz.
 
@@ -148,7 +150,7 @@ Puedes ejecutar `bash /ruta/al/repositorio/stop.sh` desde otro directorio. El sc
 
 Como alternativa, abre **dos terminales**, ambas en la raíz del repositorio.
 
-### Windows — PowerShell
+#### Windows — PowerShell
 
 Terminal 1, backend:
 
@@ -162,7 +164,7 @@ Terminal 2, frontend:
 npm.cmd --prefix frontend run dev -- --host 127.0.0.1 --port 5173 --strictPort
 ```
 
-### Linux y macOS — Bash o Zsh
+#### Linux y macOS — Bash o Zsh
 
 Terminal 1, backend:
 
@@ -178,7 +180,7 @@ npm --prefix frontend run dev -- --host 127.0.0.1 --port 5173 --strictPort
 
 Si el entorno ya está preparado, `bash scripts/dev.sh` también activa `.venv` e inicia ambos servidores desde una terminal.
 
-Abre [http://127.0.0.1:5173](http://127.0.0.1:5173) en Chrome y permite el micrófono para una llamada. La pantalla de configuración muestra si la API key está configurada, si FFmpeg está disponible y si los modelos están cargados en el backend. Con los comandos manuales, detén cada servidor con `Ctrl+C` en su terminal; con `dev.sh`, `Ctrl+C` detiene ambos.
+Abre [http://127.0.0.1:5173](http://127.0.0.1:5173) en Chrome y permite el acceso al micrófono para las llamadas. La pantalla de configuración muestra el estado de la clave de API, FFmpeg y los modelos locales. Con el arranque manual, cada servidor se detiene con `Ctrl+C` en su terminal; con `dev.sh`, `Ctrl+C` detiene ambos.
 
 Usa un único proceso backend: la reserva de una sesión activa se mantiene en memoria. Los comandos de esta guía usan el servidor de desarrollo de Vite; `npm run build` verifica y genera el frontend, pero no inicia el backend.
 
@@ -200,38 +202,44 @@ Linux/macOS:
 
 Los pesos se guardan en `.model-cache/` y se reutilizan. Tras descargarlos, la transcripción y las emociones de archivos pueden ejecutarse sin conexión; las llamadas y los resúmenes siguen necesitando OpenAI. El primer análisis puede tardar más por las descargas y la inicialización.
 
-El script prepara los modelos en un proceso separado. La interfaz seguirá mostrando «Carga bajo demanda» hasta que el backend los cargue durante un análisis; los pesos descargados se reutilizan en ese momento.
+El script prepara los modelos en un proceso separado del backend. La carga en memoria del backend ocurre durante el primer análisis y reutiliza los pesos descargados.
 
 ## Interfaz
 
-La consola reúne llamadas, archivos e historial. La transcripción conserva el texto recibido aunque lleguen actualizaciones de audio o respuestas anteriores del servidor. Durante una llamada sigue el texto nuevo dentro de su propio panel, sin desplazar la página; si desplazas ese panel hacia arriba, deja de seguir automáticamente hasta que vuelvas al final.
+La interfaz incluye:
 
-«Escuchar grabación» aparece cuando el audio está guardado. En llamadas carga la grabación estéreo final, evitando reutilizar el audio incompleto de la captura en curso. Puedes escucharla mientras terminan las emociones o el resumen; si solo se recuperó el audio del llamante, el reproductor lo indica.
+- Controles para iniciar, silenciar y finalizar llamadas, con temporizador y nivel del micrófono.
+- Carga de archivos con vista previa y selección del canal del llamante.
+- Transcripción con identificación de participantes y navegación por la grabación.
+- Gráficas de puntuaciones emocionales y resumen de la sesión.
+- Historial con reproducción de audio, exportación y eliminación de sesiones.
 
-## Dos modos
+La reproducción está disponible una vez guardado el audio, incluso si el análisis continúa. Las llamadas conservan una grabación estéreo; las sesiones recuperadas sin esa grabación pueden ofrecer únicamente el audio del llamante.
+
+## Modos de uso
 
 - **Llamada en vivo:** WebRTC conecta el micrófono con `gpt-live-1`. GPT-Live proporciona las transcripciones de ambos participantes. Un AudioWorklet independiente envía únicamente el micrófono al análisis emocional local. La grabación estéreo conserva al llamante a la izquierda y al asistente a la derecha.
 - **Archivos:** WAV, MP3, M4A o WebM, hasta 25 MB y 10 minutos. Primero escucha y selecciona el canal del llamante; FFmpeg extrae ese canal antes de convertirlo a mono de 16 kHz. La misma señal, con silencios intactos, alimenta emotion2vec+ y Whisper local. Las conversaciones mezcladas en un solo canal requieren preparar previamente una voz aislada.
 
-La llamada comienza con «Emergencias, ¿dónde ocurre la situación?». El prompt pide voz calmada, frases breves y pausas para escuchar, sin una presentación técnica en la conversación habitual. La interfaz identifica la llamada como simulada; si el llamante pregunta por la identidad, el asistente responde con honestidad. La aplicación no despacha servicios de emergencia.
+El asistente recopila la ubicación, la descripción del incidente, las personas afectadas y los riesgos inmediatos. Los prompts se definen en [backend/prompts.py](backend/prompts.py) y su versión se incluye en las exportaciones de las sesiones.
 
 Los trabajos locales se ejecutan de uno en uno, fuera del servidor HTTP. En archivos se calculan las emociones antes de transcribir. En vivo se usan ventanas de 4 segundos cada 2 segundos; una ventana necesita al menos un segundo de voz. Si el modelo se retrasa, se registra la ventana omitida y se prioriza la reciente. El audio completo del llamante se conserva independientemente de esas omisiones.
 
 Whisper es el paquete local `openai-whisper`, modelo multilingüe `small`, CPU y FP32. No hay fallback a una API de transcripción. Sus segmentos tienen tiempos estimados. Los fragmentos de GPT-Live mantienen sus tiempos originales; el reloj de la grabación y el de la sesión tienen un desplazamiento aproximado registrado en la configuración.
 
-## Coste y datos
+## Almacenamiento y uso de API
 
-La transcripción y el reconocimiento emocional de **archivos** permanecen en el equipo donde se ejecuta el backend. El resumen usa `gpt-6-luna` y envía solamente texto. Las llamadas en vivo envían audio a OpenAI y usan un backend delegado; ambas capacidades consumen API. Los archivos se pueden analizar sin API key, dejando el resumen pendiente.
+La transcripción y el reconocimiento emocional de **archivos** se ejecutan en el equipo del backend. El resumen usa `gpt-6-luna` y envía únicamente la transcripción. Las llamadas en vivo envían audio a OpenAI y usan un backend delegado; ambas capacidades generan consumo de API. Sin una clave de API, el análisis local de archivos está disponible y el resumen queda pendiente.
 
 El historial se guarda en `data/sessions.sqlite3`, y cada sesión tiene su directorio de audio. Se conserva hasta eliminarlo desde la interfaz. JSON exporta resultados, prompts, parámetros, modelos y revisiones; CSV exporta las ventanas emocionales. Al reiniciar se marcan como parciales las sesiones inconclusas. Si falla una etapa, se conservan los datos ya disponibles.
 
-La app está preparada para localhost y una sesión activa a la vez. Los comandos de arranque enlazan ambos servidores a `127.0.0.1`; el backend valida los orígenes de HTTP/WebSocket. El repositorio es público, pero esta configuración ejecuta la app localmente y no se conecta a telefonía real.
+La aplicación admite una sesión activa a la vez y se ejecuta en localhost. Los comandos de arranque enlazan ambos servidores a `127.0.0.1`; el backend valida los orígenes de HTTP/WebSocket. No incluye integración con telefonía real.
 
-`.env`, `data/`, `.model-cache/`, `.venv/`, las dependencias del frontend y los resultados de pruebas están excluidos de Git. Cada instalación conserva sus propias credenciales, modelos e historial.
+`.env`, `data/`, `.model-cache/`, `.venv/`, `.run/`, las dependencias del frontend y los resultados de pruebas están excluidos de Git. Cada instalación conserva sus propias credenciales, modelos e historial.
 
 ## Configuración
 
-Consulta `.env.example`. Opciones principales:
+Las opciones de configuración se definen en [.env.example](.env.example):
 
 | Variable | Valor inicial |
 | --- | --- |
@@ -252,7 +260,7 @@ Si necesitas indicar los ejecutables de FFmpeg mediante rutas completas, define 
 
 La carga del modelo es diferida; la pantalla de configuración indica cuándo está cargado. Las licencias de código y pesos son independientes; emotion2vec+ conserva la referencia a la licencia de modelos de FunASR en su ficha oficial.
 
-## Problemas frecuentes
+## Solución de problemas
 
 | Problema | Qué comprobar |
 | --- | --- |
@@ -267,7 +275,7 @@ La carga del modelo es diferida; la pantalla de configuración indica cuándo es
 | Falla la descarga de modelos | Comprueba conexión, espacio libre y permisos sobre `.model-cache/`; vuelve a ejecutar `scripts/download_models.py` con el Python de `.venv`. |
 | No se puede iniciar Live o generar un resumen | Comprueba la API key, el acceso a los modelos configurados y el mensaje de error. Los resultados locales ya obtenidos se conservan. |
 
-## Verificación
+## Pruebas
 
 Windows, PowerShell:
 
@@ -285,9 +293,9 @@ npm --prefix frontend run build
 
 Las pruebas usan directorios temporales y verifican canales, frecuencias de muestreo, silencio, persistencia, cierres parciales y límites. No requieren llamadas facturadas ni descargar modelos. Para ejecutar todas las pruebas de audio, instala FFmpeg con `ffprobe` y soporte para `libopus`. Las pruebas con modelos reales se realizan por separado usando audio sintético en español.
 
-Las pruebas del control de servicios comprueban procesos de otros proyectos, PID reutilizados, procesos huérfanos y la privacidad del registro local. El arranque y el cierre con `stop.sh` se comprobaron en macOS, incluyendo la caída abrupta del launcher y un proceso que ignora la señal de cierre. Linux y WSL requieren validar esos flujos en su entorno.
+Las pruebas del control de servicios cubren la identificación de procesos del repositorio, la reutilización de PID, los procesos huérfanos y los permisos del registro local. La validación del arranque y cierre con Bash se realizó en macOS; los flujos de Linux y WSL están pendientes de validación.
 
-Con la app ejecutándose, puedes comprobar la estabilidad de la transcripción y el desplazamiento en Chrome:
+Con la aplicación en ejecución, las pruebas de navegador verifican la transcripción, el desplazamiento y la reproducción de audio en Chrome:
 
 ```bash
 npx --package @playwright/cli playwright-cli -s=ui-check open http://127.0.0.1:5173/
@@ -296,11 +304,9 @@ npx --package @playwright/cli playwright-cli -s=ui-check run-code --filename=tes
 npx --package @playwright/cli playwright-cli -s=ui-check close
 ```
 
-Esta prueba simula todas las respuestas de la API y verifica actualizaciones atrasadas, fragmentos repetidos y lectura manual. No usa el micrófono, OpenAI ni las sesiones guardadas.
+`ui_regression.js` cubre actualizaciones atrasadas, fragmentos repetidos y desplazamiento manual de la transcripción. `playback_regression.js` verifica la carga de la grabación final, la presencia de señal audible y la estabilidad del reproductor durante las actualizaciones de la sesión. Ambas pruebas simulan las respuestas de la API y usan datos sintéticos; no acceden al micrófono, OpenAI ni al historial local.
 
-La prueba de reproducción usa audio estéreo sintético para verificar que al terminar una llamada se carga la grabación completa, que contiene señal audible y que las actualizaciones de la sesión no reinician el reproductor.
-
-En PowerShell sustituye `npx` por `npx.cmd`. La prueba requiere Chrome instalado y la app en ejecución. No implica que se hayan validado las inferencias ni el audio en todos los sistemas operativos.
+En PowerShell sustituye `npx` por `npx.cmd`. Estas pruebas requieren Chrome instalado y la aplicación en ejecución. La validación de los modelos y la captura de audio en cada sistema operativo es independiente de estas pruebas.
 
 La calidad en llamadas reales, acentos, ruido y voces superpuestas requiere evaluación con anotaciones humanas. Los resultados de este prototipo son estimaciones para investigación.
 
@@ -317,4 +323,8 @@ La calidad en llamadas reales, acentos, ruido y voces superpuestas requiere eval
 
 Swagger está disponible en [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).
 
-Fuentes: [GPT-Live](https://developers.openai.com/api/docs/guides/live), [Whisper](https://github.com/openai/whisper), [emotion2vec+ base](https://huggingface.co/emotion2vec/emotion2vec_plus_base).
+## Referencias
+
+- [GPT-Live](https://developers.openai.com/api/docs/guides/live)
+- [Whisper](https://github.com/openai/whisper)
+- [emotion2vec+ base](https://huggingface.co/emotion2vec/emotion2vec_plus_base)
